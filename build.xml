@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+
+<project name="linkchecker" default="dist" basedir=".">
+
+	
+    <property name="appname" value="${ant.project.name}" />
+    <property name="compile.debug" value="true" />
+    <property name="compile.optimize" value="false" />    
+    
+    <target name="dist" depends="package">
+        <echo message=" Packaging jar file...." />
+    </target>
+    
+    <target name="package">
+		<jar	destfile="./${appname}.jar" 
+				basedir="LinkChecker" >
+			<manifest>
+				<attribute name="Main-Class" value="Main" />
+				<attribute name="Class-Path" value="./lib/commons-io-2.4.jar ./lib/json-simple-1.1.1.jar ./lib/simpleParser.jar" />  
+			</manifest>
+		</jar>
+    </target>
+
+</project>
