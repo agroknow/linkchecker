@@ -71,13 +71,13 @@ public class Main {
                                         //tmpMetadata = SimpleMetadataFactory.getSimpleMetadata( SimpleMetadataFactory.LOM ) ;
                                         //-tmpMetadata.load( LOM_FOLDER + subDirectories[j].getName()+"/"+tmpFile.getName() ) ;
 
-                                        System.out.println("\n\n filename : "+ROOT_FOLDER + "/" +tmpFile.getName()+"\n\n");
+                                        System.out.println("\n\n filename : "+ROOT_FOLDER  +tmpFile.getName()+"\n\n");
 										tmpMetadata = SimpleMetadataFactory.getSimpleMetadata( SimpleMetadataFactory.AKIF) ;
 										//-tmpMetadata.load(LOM_FOLDER + subDirectories[j].getName()+"/"+tmpFile.getName() ) ;
                                         tmpMetadata.load(ROOT_FOLDER + "/" +tmpFile.getName() ) ;
                                         System.out.println(tmpMetadata);
                                     }
-                                    catch (ParserException e){System.out.println("Wheillaaaa: " + e);}
+                                    catch (Exception e){System.out.println("Wheillaaaa: " + e);}
 
                                     
                                     for(String identString : tmpMetadata.getIdentifiers())
