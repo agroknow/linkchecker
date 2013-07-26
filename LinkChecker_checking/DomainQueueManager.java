@@ -4,6 +4,8 @@
 
 
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue ;
 import java.util.concurrent.ConcurrentHashMap ;
 
@@ -108,13 +110,33 @@ public class DomainQueueManager {
                 //transfer urlbeans from Prechecking to Checking queue
                 public boolean hashtableToQueue()
                 {
-                    for(Domain domain : preChecking.values())
-                    checkingQueue.add(domain);
+                    for(Domain domain : preChecking.values()) {
+                        if(domain.getDomainQueue().size() < 100)
+                            checkingQueue.add(domain);
+                        else
+                            checkingQueue.addAll(splitDomain(domain));
+                    }
 
                     return true;
 
                 }
 
+                private List<Domain> splitDomain(Domain domain) {
+                    List<Domain> result = new ArrayList<Domain>();
+                    Domain d = null;
+                    for(int i = 0 ; i < domain.getDomainQueue().size(); i++){
+                        if(i % 100 == 0) {
+                            d = new Domain(domain.getDomainName());
+                            result.add(d);
+                        }
+                        d.getDomainQueue().add(domain.getDomainQueue().peek());
+                    }
+                    if(!result.contains(d))
+                        result.add(d);
+                    System.out.println("Domain with " + domain.getDomainQueue().size() + " urls splitted to " + result.size() + " parts");
+                    return result;
+                        
+                }
            
 
 

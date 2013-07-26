@@ -15,24 +15,25 @@ import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
+import org.jsoup.Jsoup;
 
-public class URLChecker implements Callable<Boolean>
+public class URLChecker 
 {
 
-    private URLBean urlBean ;
+//    private URLBean urlBean ;
 
 	//NOTE:this array stores the url for the repository@[0]
 	//the broken_items_directory@[1]
 	//and the ok_items_directory@[2]
-	private String[] directories;
+//	private String[] directories;
+//
+//	public URLChecker(URLBean urlbean, String[] directories)
+//    {
+//        this.urlBean = urlbean;
+//		this.directories = directories;
+//    }
 
-	public URLChecker(URLBean urlbean, String[] directories)
-    {
-        this.urlBean = urlbean;
-		this.directories = directories;
-    }
-
-	private boolean isUrlBroken()
+	public static boolean isUrlBroken(URLBean urlBean, String[] directories)
 	{
 		String tempUrl = urlBean.getUrl().toString();
 		DomainQueueManager.getInstance().getOutput().put(tempUrl, urlBean ) ;
@@ -57,7 +58,9 @@ public class URLChecker implements Callable<Boolean>
            
             try
             {
-			code = ((HttpURLConnection) urlBean.getUrl().openConnection()).getResponseCode();
+                // Use Jsoup to handle the request more efficient. We set maxBodySize = 1 , which means that at every request will ghet the header and the first byte of the body. After that it will close the connection and return the response. 
+                // In the previous version, in order to get the response, all response body was loaded (even for pdf's that was some MB size).
+			code = Jsoup.connect(urlBean.getUrl().toString()).followRedirects(false).ignoreHttpErrors(true).ignoreContentType(true).timeout(10000).maxBodySize(1).execute().statusCode();
 
 				 //set response code to check the outcome.
 			         DomainQueueManager.getInstance().getOutput().get( tempUrl ).setResponseCode(code) ;
@@ -123,7 +126,7 @@ public class URLChecker implements Callable<Boolean>
 
 
 	//NOTE:directories array stores the url for the repository@[0], the broken_items_directory@[1] and the ok_items_directory@[2]
-        public void copyAfterTestToFolder(URLBean ubean, boolean broken, String[] directories)
+        public static void copyAfterTestToFolder(URLBean ubean, boolean broken, String[] directories)
         {
             //--read .properties file
 				//             Properties prop = new Properties();
@@ -188,54 +191,54 @@ public class URLChecker implements Callable<Boolean>
 
     }
 
-    @SuppressWarnings("unchecked")
-	public String updateAKIF( String akifString, IdentifierBean ib ) throws Exception
-	{
-		JSONObject akifObject = (JSONObject) JSONValue.parse( akifString ) ;
-		if ( !ib.getIdentifier().equals( ""+(Long)akifObject.get( "identifier" ) ) )
-		{
-			throw new Exception( "Identifiers mismatch!: " + ib.getIdentifier() + " differs from " + (Long)akifObject.get( "identifier" ) ) ;
-		}
-		JSONArray expressions0 = (JSONArray) akifObject.get( "expressions" ) ;
-		JSONArray expressions1 = new JSONArray() ;
-		for ( Object expression : expressions0 )
-		{
-			JSONObject expression0 = (JSONObject) expression ;
-			JSONArray manifestations0 = (JSONArray)expression0.get( "manifestations" ) ;
-			JSONArray manifestations1 = new JSONArray() ;
-			for ( Object manifestation : manifestations0 )
-			{
-				JSONObject manifestation0 = (JSONObject)manifestation ;
-				JSONArray items0 = (JSONArray)manifestation0.get( "items" ) ;
-				JSONArray items1 = new JSONArray() ;
-				for ( Object item : items0 )
-				{
-					JSONObject item0 = (JSONObject)item ;
-					String url = (String)item0.get( "url" ) ;
-					// item0.put( "broken", new Boolean( true ) ) ;
-					item0.put( "broken", new Boolean( ib.getUrlBeans().get( url ).isBroken() ) ) ;
-					items1.add( item0 ) ;
-				}
-				manifestation0.put( "items", items1 ) ;
-				manifestations1.add( manifestation0 ) ;
-			}
-			expression0.put( "manifestations", manifestations1 ) ;
-			expressions1.add( expression0 ) ;
-		}
-		akifObject.put( "expressions", expressions1 ) ;
-		akifObject.put( "lastUpdateDate", utcNow() ) ;
-		return akifObject.toJSONString() ;
-	}
+//    @SuppressWarnings("unchecked")
+//	public String updateAKIF( String akifString, IdentifierBean ib ) throws Exception
+//	{
+//		JSONObject akifObject = (JSONObject) JSONValue.parse( akifString ) ;
+//		if ( !ib.getIdentifier().equals( ""+(Long)akifObject.get( "identifier" ) ) )
+//		{
+//			throw new Exception( "Identifiers mismatch!: " + ib.getIdentifier() + " differs from " + (Long)akifObject.get( "identifier" ) ) ;
+//		}
+//		JSONArray expressions0 = (JSONArray) akifObject.get( "expressions" ) ;
+//		JSONArray expressions1 = new JSONArray() ;
+//		for ( Object expression : expressions0 )
+//		{
+//			JSONObject expression0 = (JSONObject) expression ;
+//			JSONArray manifestations0 = (JSONArray)expression0.get( "manifestations" ) ;
+//			JSONArray manifestations1 = new JSONArray() ;
+//			for ( Object manifestation : manifestations0 )
+//			{
+//				JSONObject manifestation0 = (JSONObject)manifestation ;
+//				JSONArray items0 = (JSONArray)manifestation0.get( "items" ) ;
+//				JSONArray items1 = new JSONArray() ;
+//				for ( Object item : items0 )
+//				{
+//					JSONObject item0 = (JSONObject)item ;
+//					String url = (String)item0.get( "url" ) ;
+//					// item0.put( "broken", new Boolean( true ) ) ;
+//					item0.put( "broken", new Boolean( ib.getUrlBeans().get( url ).isBroken() ) ) ;
+//					items1.add( item0 ) ;
+//				}
+//				manifestation0.put( "items", items1 ) ;
+//				manifestations1.add( manifestation0 ) ;
+//			}
+//			expression0.put( "manifestations", manifestations1 ) ;
+//			expressions1.add( expression0 ) ;
+//		}
+//		akifObject.put( "expressions", expressions1 ) ;
+//		akifObject.put( "lastUpdateDate", utcNow() ) ;
+//		return akifObject.toJSONString() ;
+//	}
 	
-	private String utcNow()
-	{
-		Calendar cal = Calendar.getInstance();
-		SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd" );
-		return sdf.format(cal.getTime());
-	}
+//	private String utcNow()
+//	{
+//		Calendar cal = Calendar.getInstance();
+//		SimpleDateFormat sdf = new SimpleDateFormat( "yyyy-MM-dd" );
+//		return sdf.format(cal.getTime());
+//	}
     
-	public Boolean call() throws Exception
-	{
-		return isUrlBroken() ;
-	}
+//	public Boolean call() throws Exception
+//	{
+//		return isUrlBroken() ;
+//	}
 }
