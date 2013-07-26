@@ -13,7 +13,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
-
+// FIXME : Class names are always capitalized.
 public class checkUrlThread implements Runnable
 {
 	private String[] directories;
@@ -50,7 +50,7 @@ public class checkUrlThread implements Runnable
 
     }
 
-
+  // It is a already a different thread per domain. no need to start more thread to check the urls of this domain. 
   private void checkDomainBean( Domain db ) throws Exception
     {
     	ExecutorService executor ;
@@ -63,38 +63,39 @@ public class checkUrlThread implements Runnable
     		ubean = db.getDomainQueue().remove() ;
     		// Prepare the URL Checker
                 //System.out.println("..."+db.getDomainName()+".size: " +db.getDomainQueue().size());
-    		URLChecker uchecker = new URLChecker(ubean, directories) ;
+//    		URLChecker uchecker = new URLChecker(ubean, directories) ;
+    		
 			// prepare the Executor
-    		executor = Executors.newSingleThreadExecutor() ;
+//    		executor = Executors.newSingleThreadExecutor() ;
                 try
                 {
+                    URLChecker.isUrlBroken(ubean, directories);
+//                Collection<Callable<Boolean>> list = new ArrayList<Callable<Boolean>>() ;
+//    		list.add( uchecker ) ;
+//    		List<Future<Boolean>>  futuresList = null ;
+//    		try
+//    		{
+//                    //Executes the given tasks, returning a list of Futures holding their status and results when
+//                    //all complete or the timeout expires, whichever happens first. Timeout is 60 seconds
+//
+//    		   futuresList = executor.invokeAll(list, 30, TimeUnit.SECONDS ) ;
+//                   //executor.shutdown();
 
-                Collection<Callable<Boolean>> list = new ArrayList<Callable<Boolean>>() ;
-    		list.add( uchecker ) ;
-    		List<Future<Boolean>>  futuresList = null ;
-    		try
-    		{
-                    //Executes the given tasks, returning a list of Futures holding their status and results when
-                    //all complete or the timeout expires, whichever happens first. Timeout is 60 seconds
-
-    		   futuresList = executor.invokeAll(list, 30, TimeUnit.SECONDS ) ;
-                   //executor.shutdown();
-
-		}
-    		catch (InterruptedException e)
-                {
-                    System.out.println("_catch me_");
-                    e.printStackTrace();
-                    //executor.shutdown();
-                }
+//		}
+//    		catch (InterruptedException e)
+//                {
+//                    System.out.println("_catch me_");
+//                    e.printStackTrace();
+//                    //executor.shutdown();
+//                }
 
                 //System.out.println("here");
 
 
                 }catch(Exception e)
                 {e.printStackTrace();}
-    			finally
-                {executor.shutdown();}
+//    			finally
+//                {executor.shutdown();}
 
 
     }

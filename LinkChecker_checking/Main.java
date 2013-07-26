@@ -72,13 +72,14 @@ public class Main {
                                         //-tmpMetadata.load( LOM_FOLDER + subDirectories[j].getName()+"/"+tmpFile.getName() ) ;
 
                                         System.out.println("\n\n filename : "+ROOT_FOLDER + "/" +tmpFile.getName()+"\n\n");
-										tmpMetadata = SimpleMetadataFactory.getSimpleMetadata( SimpleMetadataFactory.AGRIF) ;
+										tmpMetadata = SimpleMetadataFactory.getSimpleMetadata( SimpleMetadataFactory.AKIF) ;
 										//-tmpMetadata.load(LOM_FOLDER + subDirectories[j].getName()+"/"+tmpFile.getName() ) ;
                                         tmpMetadata.load(ROOT_FOLDER + "/" +tmpFile.getName() ) ;
+                                        System.out.println(tmpMetadata);
                                     }
                                     catch (ParserException e){System.out.println("Wheillaaaa: " + e);}
 
-                                    System.out.println(tmpMetadata);
+                                    
                                     for(String identString : tmpMetadata.getIdentifiers())
                                     {
                                         for(String locString : tmpMetadata.getLocations())//urls
@@ -110,12 +111,11 @@ public class Main {
                                             catch (MalformedURLException e)
                                             {
                                                 boolean malwaredCopied = copyRecordsWithMalwareUrls(tmpFile.getName(),args);
-                                                System.out.println(">>>>-------malwaredCopied:" + malwaredCopied);
+                                                System.out.println(">>>>-------malwaredCopied:" + malwaredCopied); // not a helpful logging. 
                                                 
                                                 malformedCtr ++;
                                                 //e.printStackTrace();
                                             }
-
                                         }
                                     }
 
@@ -150,9 +150,11 @@ public class Main {
 				// ARGS[] contains repository@[0] , broken_dir@[1], ok_dir@[2]
                   PoolManager.getInstance().checkUrls(args); 
 
-
+                  // Busy waiting pattern! Should avoid or should include a sleep period inside.
                   while(!PoolManager.getInstance().getExecutor().isTerminated())//Returns true if all tasks have completed following shut down.
-                  {/*System.out.println("0");*/}
+                  {
+                     Thread.sleep(10000); 
+                  }
 
 
 //RESULTS
@@ -221,7 +223,8 @@ public class Main {
     	    //copy the file content in bytes
     	    while ((length = inStream.read(buffer)) > 0)
             {outStream.write(buffer, 0, length);}
-            
+        
+    	    // FIXME :  Finally clause needed to close that streams. In case of exception the streams are never closed.  
     	    inStream.close();
     	    outStream.close();
     	    //System.out.println("File is copied successfully");
