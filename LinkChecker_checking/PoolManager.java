@@ -11,23 +11,39 @@ import java.util.concurrent.Executors;
 public class PoolManager
 {
 
-    private static PoolManager instance ;
+//    private static PoolManager instance ;
     private ExecutorService executor ;
-    private int THREAD_NUMBER = 1000;
+    // 1000 Threads are killing your machine! The OS will never allow them to allocate the needed resources. 
+    private int THREAD_NUMBER = 30;
 	
-    public static PoolManager getInstance()
-		{
-                    synchronized (PoolManager.class)
-                    {
-                        if (instance == null)
-                        {
-                            instance = new PoolManager();
-                        }
-                    }
+    private final static class SingletonHolder {
+        public final static PoolManager SINGLETON = new PoolManager();
+    }
+    
+    public static PoolManager getInstance() {
+        return SingletonHolder.SINGLETON;
+    }
+    
+    // Every singleton object should have a private constructor.
+    private PoolManager() {
+        
+    }
+    
+    // Bad singleton pattern, synchronization is a performance killer
+//    public static PoolManager getInstance()
+//		{
+//                    synchronized (PoolManager.class)
+//                    {
+//                        if (instance == null)
+//                        {
+//                            instance = new PoolManager();
+//                        }
+//                    }
+//
+//                    return instance ;
+//                }
 
-                    return instance ;
-                }
-
+    
 
    public void checkUrls(String[] directories)
                 {
